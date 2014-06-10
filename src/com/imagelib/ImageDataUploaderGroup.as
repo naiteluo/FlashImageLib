@@ -12,7 +12,8 @@ package com.imagelib
 		public static const STATUS_RUNNING:int = 1;
 		public static const EVENT_ALL_COMPLETE:String = 'all_complete';
 		public static const EVENT_ALL_SUCCESS:String = 'all_success';
-		
+		public static const EVENT_ONE_COMPLETE:String = 'one_complete';
+        
 		private var _status:int = STATUS_NORMAL;
 		private var _uploaderlist:Array;
 		private var _errorNum:int;
@@ -96,12 +97,23 @@ package com.imagelib
 		}
 		private function _dispatchEvent():void
 		{
-			if(_uploaderlist.length > 0) return;
+            
+			if(_uploaderlist.length >= 0) 
+            {
+                this.dispatchEvent(new Event(EVENT_ONE_COMPLETE));
+                if (_uploaderlist.length > 0) {
+                    return;
+                }
+            }
+            
 			removeAllUploaders();
 			this.dispatchEvent(new Event(EVENT_ALL_COMPLETE));
 			
 			if(_errorNum == 0)
-				this.dispatchEvent(new Event(EVENT_ALL_SUCCESS));
+            {
+                this.dispatchEvent(new Event(EVENT_ALL_SUCCESS));
+            }
+            
 		}
 	}
 }
