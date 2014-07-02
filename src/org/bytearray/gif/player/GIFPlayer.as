@@ -6,25 +6,27 @@
 
 package org.bytearray.gif.player
 {
-	import flash.events.TimerEvent;
-	import flash.net.URLLoaderDataFormat;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.Shape;
+	import flash.errors.ScriptTimeoutError;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
+	import flash.events.TimerEvent;
+	import flash.net.URLLoader;
+	import flash.net.URLLoaderDataFormat;
+	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
 	import flash.utils.ByteArray;
 	import flash.utils.Timer;
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.events.IOErrorEvent;
-	import flash.errors.ScriptTimeoutError;
+	
 	import org.bytearray.gif.decoder.GIFDecoder;
-	import org.bytearray.gif.events.GIFPlayerEvent;
-	import org.bytearray.gif.events.FrameEvent;
-	import org.bytearray.gif.events.TimeoutEvent;
-	import org.bytearray.gif.events.FileTypeEvent;
 	import org.bytearray.gif.errors.FileTypeError;
-	import flash.display.Shape;
+	import org.bytearray.gif.events.FileTypeEvent;
+	import org.bytearray.gif.events.FrameEvent;
+	import org.bytearray.gif.events.GIFPlayerEvent;
+	import org.bytearray.gif.events.TimeoutEvent;
+	import flash.geom.Matrix;
 
 	public class GIFPlayer extends Shape
 	{
@@ -200,6 +202,35 @@ package org.bytearray.gif.player
 			{
 				myTimer.stop();
 			}
+		}
+		
+		/**
+		 * Resize gif
+		 * 
+		 * @return void
+		 */
+		public function resize(width:Number, height:Number):void {
+			stop();
+			var length:int = aFrames.length;
+			var frame_origin:BitmapData = null;
+			var matrix:Matrix = null;
+				
+			for (var i:int = 0; i < length; i++)
+			{
+				frame_origin = aFrames[int(i)].clone();
+				
+				// 只需要计算一次变换矩阵
+				if (!matrix) {
+					matrix = new Matrix();
+					matrix.scale(width / frame_origin.width, height / frame_origin.height);
+				}
+				
+				var bmd:BitmapData = new BitmapData(width, height, true, 0x00000000);
+				bmd.draw(frame_origin, matrix, null, null, null, true);
+				
+				aFrames[int(i)] = bmd;
+			}
+			play();
 		}
 
 		/**
